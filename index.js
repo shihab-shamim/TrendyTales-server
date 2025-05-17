@@ -32,9 +32,37 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+   
+
     //database and collection name
      const databaseCollection = client.db("trendyTales");
     const userCollection = databaseCollection.collection("users");
+
+     // jwt  related
+     app.post("/jwt",async(req,res)=>{
+      const user=req.body
+      const token=jwt.sign(user?.userEmail,process.env.ACCESS_TOKEN,{
+        expiresIn:"7d"
+      })
+      res.cookie("accessToken",token,{
+        httpOnly:true,
+        secure:false,
+         sameSite: 'lax',
+         maxAge: 24 * 60 * 60 * 1000 
+        
+      }).send({ success: true })
+     })
+
+     
+     app.post("/logOut",async(req,res)=>{
+
+      res.clearCookie("accessToken",{
+        httpOnly: true,
+     secure: false,
+     sameSite: 'lax'
+      }).send({ success: true })
+
+     })
 
     app.post("/users",async(req,res)=>{
         const userInfo=req.body;
